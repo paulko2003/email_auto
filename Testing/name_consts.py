@@ -2,4 +2,4 @@
 
 ALPHABET=tuple("abcdefghijklmnopqrstuvw")
 MAILS=("gmail.com", "yahoo.com", "hotmail.com","outlock.com","ntua.email.gr")
-
+AFM_LEN= 8

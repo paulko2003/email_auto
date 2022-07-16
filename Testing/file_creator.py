@@ -1,15 +1,7 @@
 import random as ra
 from name_consts import ALPHABET, MAILS
 #Parent class that creates basic test files 
-class test_file_create : 
-
-    #takes range of file names
-    def __init__(self, start: int , end: int, numberOfPeople: int): 
-        self.numberOfPeople=numberOfPeople
-        self.start= start
-        self.end= end
-        self.amount= end-start
-        self.run()
+class test_file_creator : 
         
     #a function that returns a -list with all the test file names
     def create_names(self):
@@ -36,26 +28,35 @@ class test_file_create :
         return email
     
     #makes a file which can have errors with numberOfPeople number of lines
-    def make_file(self, name, faulty=False):
+    def make_file(self, name, faulty):
         with open("File_test/"+name+'.txt', 'w') as file:
             for i in range(self.numberOfPeople):
+                faulty_check=''
                 current_afm=self.create_afm()
                 current_email=self.create_email()
-                if not faulty and ra.randint(0,1000) == 500: #adds 1/1001 chance to have a faulty afm or mail 50/50
-                    for
-                    
-                file.write(current_afm+" : "+current_email + '\n')
+                if faulty and ra.randint(0,999) == 500: #adds 1/1000 chance to have a faulty afm  
+                    letter=current_afm[ra.randint(0,7)]
+                    current_afm=current_afm.replace(letter,'')
+                    faulty_check="  hehe im faulty mi puta"
+                file.write(current_afm+" : "+current_email+ faulty_check + '\n')
     
-    #makes all the basic files i want to test     
-    def run(self):
+    #uses the functions to make the files i want to test 
+    #takes range of files and if i want a file to have faults or no
+    def run(self, start: int , end: int, numberOfPeople: int, faulty=False):
+        self.numberOfPeople=numberOfPeople
+        self.start= start
+        self.end= end
+        self.amount= end-start
+        self.faulty=False
         names= self.create_names()
         for i in range(self.amount):
-            self.make_file(names[i])    
+            self.make_file(names[i],faulty)    
             
 
 
 if __name__ == "__main__":
-    test_file_create(0,10,4000)
+    test_file_creator().run(0,10,4000, faulty=True)
+
 
 
     
