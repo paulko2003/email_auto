@@ -10,39 +10,48 @@ class get_data_test_form:
     #init dict that contains the data in the form i want
     def __init__(self):
         self.my_dict= dict()
+        self.pdfs_are_ok=dict() #gets every afm as key and pdf path as value 
+        self.email_pdf=dict() # gets every email as key and value the pdf
+        self.allafms=dict() #gets every afm as key and 0 as value
+        self.afm_mail=dict() #gets every afm as key and email as value
     
-    #gets the data from each line and saves it to my_dict
-    def strip_data(self, line: str): 
-        passed=False
-        line=line.replace(' ','')
-        line=line.replace('\n','')
-        data=line.split(':') 
-        self.my_dict['afm']=data[0]
-        self.my_dict['emai']=data[1]
+    def fill_pdfs(self, folder: str):
+        for filename in os.listdir(folder):
+            self.pdfs_are_ok[filename[1:-4]]=os.path.join(folder,filename)
+            self.allafms[str(filename[1:-4])]=0
+            
+    #gets all data from a txt file
+    def strip_data(self, file: str): 
+        with open(file,'r') as f:
+            for line in f: 
+                line=line.replace(' ','')
+                line=line.replace('\n','')
+                data=line.split(':') 
+                self.afm_mail[data[0]]=data[1]
+                self.allafms[str(data[0])]+=1
 
-        
+    def email_pdfcon(self):
+        for key in self.afm_mail:
+            self.email_pdf[self.afm_mail[key]]=self.pdfs_are_ok[key]
 
-    #searches and saves file path in my_dict if exists and returns True/False acordigly
-    def pdf_file_search(self, folder: str, afm: str):
-        exists= False
-        direcotry = gl.glob(folder+"/*"+afm+"*")
-        if len(direcotry)==1:
-            exists=True
-            self.my_dict["pdf"]= direcotry[0]
-        return exists
+    def run(self,file="Testing/File_test/Test_file_1.txt",folder='Testing/PDF_files/pdf_files_1'):
+        self.fill_pdfs(folder)
+        self.strip_data(file)
+        self.email_pdfcon()
+        for key in self.allafms:
+            if self.allafms[key]!=1:
+                print(key,self.allafms[key])
 
-    def _test(self,file_path= 'Testing/File_test/Test_file_1.txt',file_pdfs='Testing/PDF_files/pdf_files_1'):
-        with open(file_path) as file:
-            for index,line in enumerate(file):
-                self.strip_data(line)
-                if not self.pdf_file_search(file_pdfs,self.my_dict["afm"]):
-                    print(f"issue in {  line  }")
-                
+
+
+
+               
                 
 
                 
 
 
 if __name__ == '__main__':
-
-    get_data_test_form()._test()
+    for i in range(1,11):
+        print('file_'+str(i))
+        get_data_test_form().run(file="Testing/File_test/Test_file_"+str(i)+".txt",folder='Testing/PDF_files/pdf_files_'+str(i))
