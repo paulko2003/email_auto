@@ -1,5 +1,4 @@
-#this script it made as an api between how we get the data and how its being fed to the code
-#whenever the end function is called there needs to be returned a dict in the form of (afm: "my afm", email: "my email", pdf: "my email")
+
 #currently we are getting the data by a file containing afm : email, then we search for the pdf with that afm.
 import glob as gl
 import os
