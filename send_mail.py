@@ -1,9 +1,8 @@
-#this file contains how the emails will be sent
-
-from logging import exception
-from pickle import FALSE
+#this files contains the class that is responsible for how emails will be constracted
+#contains function send_one_email that you call everytime you want to send an email
+#the class should be instantiated with Test= False if you want to send emails
+#__main__ is only used for testing to see for 1 file if something is wrong
 import smtplib 
-from email.mime.multipart import MIMEMultipart
 import ssl
 import os
 from email.message import EmailMessage
@@ -29,13 +28,11 @@ class mailer:
     
     #adds pdfs into the email content or returns None so nothing will be sent
     def _add_atach(self,pdf1_dir: str,pdf2_dir: str, email_content, current_email: int):
-        pdf1_name=pdf1_dir.split('/')[-1] #pdf1_dir variable will be in the form of (curent_dir/next_dir/next_next_dir/pdfname.pdf) so we take the last element after the /
-        pdf2_name=pdf2_dir.split('/')[-1]
         for c_file in [pdf1_dir, pdf2_dir]: #just 2 iterations with c_file being equal to each dir
             try:
                 with open(c_file,'rb') as file:
                     file_data=file.read()
-                    file_name=c_file
+                    file_name=c_file.split('/')[-1]   #pdf1_dir variable will be in the form of (curent_dir/next_dir/next_next_dir/pdfname.pdf) so we take the last element after the /
                 email_content.add_attachment(file_data, maintype='application', subtype='octet-stream',filename=file_name)
             except Exception as e:
                 print(e)
@@ -44,7 +41,7 @@ class mailer:
         return email_content #all went okay and returns email with attachments
 
     #sets_content for our email (takes relative dirs to our pdf files)
-    def set_content(self,current_mail_number: int,pdf1_dir: str,pdf2_dir: str,Subject: str,Content: str, From,To ):
+    def _set_content(self,current_mail_number: int,pdf1_dir: str,pdf2_dir: str,Subject: str,Content: str, From,To ):
         email_content=EmailMessage()
         if From== None:
             From=self.my_email
@@ -58,15 +55,15 @@ class mailer:
         return email_content
     
     #basic function used to check if email will be sent or no returns true false(its the last check mainly for failing to locate a dir all other checks are in data_feeder)
-    def can_send(self, email_content ):
+    def _can_send(self, email_content ):
         if email_content == None:
             return False
         return True
 
     #Is called everytime to send an email with the 2 pdfs 
     def send_one_email(self,current_email_number: int ,pdf1_dir: str,pdf2_dir: str,Subject="this email is from digital cate",Content="here are your 2 pdfs", From= None , To = None):
-        my_email=self.set_content(current_email_number,pdf1_dir,pdf2_dir,Subject,Content, From, To)
-        if self.can_send(my_email):
+        my_email=self._set_content(current_email_number,pdf1_dir,pdf2_dir,Subject,Content, From, To)
+        if self._can_send(my_email):
             try:
                 self.my_conection.send_message(my_email)
             except Exception as e:
