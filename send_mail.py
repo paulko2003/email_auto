@@ -2,29 +2,47 @@
 #contains function send_one_email that you call everytime you want to send an email
 #the class should be instantiated with Test= False if you want to send emails
 #__main__ is only used for testing to see for 1 file if something is wrong
+#here is used to make the logs for what happened to the emails
 import smtplib 
 import ssl
 import os
 from email.message import EmailMessage
 from dotenv import load_dotenv, find_dotenv
+from logger import logging
+
 class mailer:
     #when object is made gets env variables and establishes an smpt conection/login
     def __init__(self,Test=True):
         load_dotenv()
+        logging('\n\n -----new run-----\n\n', True)       #starts a new segment in 
+        logging('\n\n -----new run-----\n\n', False)      #both files for new run
+        self.Test=Test
         self.my_email= os.environ.get('test_email')
         self.my_password= os.environ.get('test_email_pass')    
-        self.my_conection= self._init_conection(Test)
-        
+        self.my_conection= self._init_conection()
+
+    
 
     #starts a conection with localhost for test or gmail for real
-    def _init_conection(self, Test: bool):
-        if Test:
-            conection= smtplib.SMTP('localhost', 1025)  
+    #returns None if conection couldnt be established
+    def _init_conection(self):
+        if self.Test:
+            conection= smtplib.SMTP('localhost', 1025) 
         else:
-            conection=smtplib.SMTP_SSL('smtp.gmail.com',465)
-            conection.login(self.my_email,self.my_password)
-        self.my_password=None
+            try:
+                conection=smtplib.SMTP_SSL('smtp.gmail.com',465)
+                conection.login(self.my_email,self.my_password)
+                self.my_password=None
+            except Exception as e:
+                msg="conection not established"
+                print(e)
+                print(msg)
+                logging(str(e),False)
+                logging(msg,False)
+                conection=None
         return conection
+        
+
     
     #adds pdfs into the email content or returns None so nothing will be sent
     def _add_atach(self,pdf1_dir: str,pdf2_dir: str, email_content, current_email: int):
@@ -32,11 +50,17 @@ class mailer:
             try:
                 with open(c_file,'rb') as file:
                     file_data=file.read()
-                    file_name=c_file.split('/')[-1]   #pdf1_dir variable will be in the form of (curent_dir/next_dir/next_next_dir/pdfname.pdf) so we take the last element after the /
+                    file_name=c_file.split('/')[-1]   #pdf1_dir variable will be in the form of (curent_dir/next_dir/next_next_dir/pdfname.pdf) so we take the last element after the /        
                 email_content.add_attachment(file_data, maintype='application', subtype='octet-stream',filename=file_name)
+                msg=f'added file {file_name} to the email'
+                logging(msg,True)
+                print(msg)
             except Exception as e:
+                msg=f"email number {current_email+1}. Had issues, the email was going to be sent to: {email_content['To']}"
+                logging(str(e),False)
+                logging(msg, False)
                 print(e)
-                print(f"email number {current_email} had issues, the email was going to be sent to: {email_content['To']}")#catches error reports it and returns 0
+                print(msg)#catches error reports it and returns 0
                 return None
         return email_content #all went okay and returns email with attachments
 
@@ -60,24 +84,56 @@ class mailer:
             return False
         return True
 
-    #Is called everytime to send an email with the 2 pdfs 
-    def send_one_email(self,current_email_number: int ,pdf1_dir: str,pdf2_dir: str,Subject="this email is from digital cate",Content="here are your 2 pdfs", From= None , To = None):
+    #checks if there is an established smpt connection before setting content or doing anything
+    def _conected(self):
+        if self.my_conection == None:
+            return False
+        return True
+
+    #is used before sending any email
+    def _new_mail_print(self):
+        print('')
+        print("--------------------------------")
+        print('')
+
+    
+    #Is called everytime to send an email with the 2 pdfs, returns None incase there was not a conection established
+    def send_one_email(self,current_email_number: int ,pdf1_dir: str,pdf2_dir: str,Subject="this email is from digital cate",Content="here are your 2 pdfs", From= None , To = None): 
+        if not self._conected():
+            msg= 'no connection established to send an email'
+            logging(msg,False)
+            print(msg)
+            return None
+        self._new_mail_print()
         my_email=self._set_content(current_email_number,pdf1_dir,pdf2_dir,Subject,Content, From, To)
-        if self._can_send(my_email):
+        if self._can_send(my_email) and self.my_conection!= None:
             try:
                 self.my_conection.send_message(my_email)
-            except Exception as e:
+                msg=f"email number {current_email_number+1} sent to {my_email['To']}"
+                logging(msg,True)
+                print(msg)
+            except Exception as e: 
                 print(e)
-                print("issue delivering the email")
+                msg="issue delivering the email"
+                logging(msg, False)
+                print(msg)
+                logging('\n',False)
                 return False
-            return True        #returns true if sent, false if inside exception or outside if(was none)
+            logging('\n',True)
+            return True        #returns true if sent, false if inside exception or outside if(was none
+        logging('\n',False)         
         return False 
             
 
 
 if __name__ == "__main__":
-    email=mailer(Test=False)
-    email.send_one_email(0,'email_auto/Testing/PDF_files/pdf_files_1/Q02428405.pdf','email_auto/Testing/PDF_files/pdf_files_1/Q00002876.pdf')
+    email=mailer(Test= False)
+    for i in range (500):
+        dir1='Testing/PDF_files/pdf_files_1/Q00018391.pdf'
+        dir2='Testing/PDF_files/pdf_files_1/Q00420534.pdf'
+        if i== 342:
+            dir1='random dir lol'
+        email.send_one_email(i,dir1,dir2)
 
 
 
