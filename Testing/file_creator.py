@@ -1,6 +1,11 @@
+from pickle import NONE
 import random as ra
 import os
+
+from openpyxl.workbook import workbook
 from name_consts import ALPHABET, MAILS
+import openpyxl as xls
+
 
 # creates all basic test files(txt and pdf)
 class test_file_creator:
@@ -8,8 +13,6 @@ class test_file_creator:
     # a function that creates and returns a -list with all the test file names
     def create_names(self, start: int, end: int):
         file_name = list()
-        print(end, end+1)
-        print(range(start, end + 1, 1))
         for i in range(start, end + 1, 1):
             file_name += ["Test_file_" + str(i)]
         return file_name
@@ -21,9 +24,55 @@ class test_file_creator:
         for i in range(7):
             afm += str(ra.randint(0, 9))
         return afm
+    
+    #makes a random anagnoristiko for the xlsx file
+    def create_an(self):
+        an=''
+        length=9
+        for i in range(length):
+            if ra.randint(1,5) ==3: #adds a one in 5 chance that there will be a number in an instead of letter
+                an+=str(ra.randint(0,9))
+            else:
+                letter=ra.choice(ALPHABET)
+                if ra.randint(1,2)==1: #adds a 1 in 2 chance of letter to be capitalized
+                    letter=letter.upper()
+                an+=letter
+        return an
+
+    def make_name(self):
+        name=''
+        name+=ra.choice(ALPHABET).upper() #adds a capitalized first letter to the name it returns
+        for i in range(ra.randint(4, 10)): #makes len of name randomized
+            name+=ra.choice(ALPHABET)
+        name+=' '
+        for i in range(ra.randint(4, 10)): #makes len of last_name randomized
+            name+=ra.choice(ALPHABET)    
+        return name
+
+    #this function makes xlsx files with data like (anagnoristiko,email,name_of_person,afm)
+    #and then adds the data i want to it
+    def make_xlsx_file(self,workbook , current_an: str, persons_name: str, current_afm: str, current_email: str, name_file: str,faulty: bool):
+        names=['anagnoristiko','email','people_name','afm']
+        data=[current_an, current_email, persons_name, current_afm]
+        path= 'File_test/'+name_file+'.xlsx'
+        if workbook==None:
+            workbook= xls.Workbook()
+            worksheet = workbook.worksheets[0]
+            for index,current in enumerate(names):          #makes a new one with the top cells having the names i want
+                cell=worksheet.cell(row=1, column=index+1 )
+                cell.value= current
+        else: worksheet= workbook.worksheets[0]             #this is extremely bad code     
+        if (faulty and ra.randint(0, 999) == 500):  # adds 1/1000 chance to have a faulty afm
+            letter = ra.choice(current_an)
+            current_an = current_an.replace(letter, "")
+        t_row=worksheet.max_row
+        if worksheet.cell(row=t_row, column=1).value!=None: t_row+=1                                                                                                                                   
+        for index,current in enumerate(names):
+            worksheet.cell(row= t_row, column=index+1).value=data[index]
+        return workbook,path           
 
     # creates a random email everytime its called
-    def create_email(self):
+    def _create_email(self):
         email = ""
         name_len = ra.randint(5, 15)
         for i in range(name_len):
@@ -32,41 +81,28 @@ class test_file_creator:
         email += ra.choice(MAILS)
         return email
 
-    # takes filename, creates it or appends at the end of the file the afm : email relationship
-    # the end file will be in the form of "afm  :  email"
-    def make_txt_file(
-        self, current_afm: str, current_email: str, file_name: str, faulty: bool
-        ):
-
-        if os.path.exists("File_test/" + file_name + ".txt"):
-            append_write = "a"  # append if already exists
-        else:
-            append_write = "w"  # make a new file if not
-
-        with open("File_test/" + file_name + ".txt", append_write) as file:
-            if (faulty and ra.randint(0, 999) == 500):  # adds 1/1000 chance to have a faulty afm
-                letter = current_afm[ra.randint(0, 7)]
-                current_afm = current_afm.replace(letter, "")
-            file.write(current_afm + " : " + current_email + "\n")
-            return current_afm
-    # makes a direcotry that containts all the pdfs corresponding to a file
+       # makes a direcotry that containts all the pdfs corresponding to a file
     def make_pdf_dir(self, current_index):
         name = "PDF_files/" + "pdf_files_" + str(current_index) + "/"
+        namea= "PDF_files/" + "pdf_files_" + str(current_index) + "/items/" 
+        nameq= "PDF_files/" + "pdf_files_" + str(current_index) + "/questions/"
         os.mkdir(name)
+        os.mkdir(namea)
+        os.mkdir(nameq)
         return name
 
     # makes an empty file with a .pdf extension so we can have something to send
     def make_pdf_file(self, current_afm, current_pdf_dir):
         try:
-            current_start = "Q"
-            if ra.randint(1, 3) == 2:
-                current_start = "S"  # adds a 1/3 chance for a pdf to start with an s instead of q                
-            with open(current_pdf_dir + current_start + current_afm + ".txt", "a") as f:
+            with open(current_pdf_dir+'questions/' + "Q" + current_afm + ".txt", "a") as f:
                 f.write("he")
-            os.rename(current_pdf_dir + current_start + current_afm +".txt", current_pdf_dir + current_start + current_afm +".pdf")
-                
+            os.rename(current_pdf_dir+'questions/' + "Q" + current_afm +".txt", current_pdf_dir + "questions/Q" + current_afm +".pdf")
+            with open (current_pdf_dir+'items/' + "S" + current_afm + ".txt", "a") as f: 
+                 f.write("he")
+            os.rename(current_pdf_dir+'items/' + "S" + current_afm +".txt", current_pdf_dir + "items/S" + current_afm +".pdf")
+
         except Exception as e:
-            print(e)
+            print(e,"im here")
         return current_afm
 
     # uses the functions to make the files i want to test if create_pdfs or create_txt is False no txt or pdf will be made
@@ -82,17 +118,20 @@ class test_file_creator:
         ):
         names = self.create_names(start, end)
         for i in range(end+1 - start):  # make (end - start) amount of files
+            print(i, "now")
+            workbook=None
             if create_pdfs:
                 current_pdf_dir = self.make_pdf_dir(i+1)
             for j in range(numberOfPeople):  # with (numberOfPeople) amount of lines
                 current_afm = self.create_afm()
-                current_email = self.create_email()
+                current_email = self._create_email()
+                current_name= self.make_name()
+                current_an=self.create_an()
                 if create_txt:
-                    check_afm= self.make_txt_file(current_afm, current_email, names[i], faulty)
+                    workbook,path= self.make_xlsx_file(workbook,current_an,current_name,current_afm,current_email,names[i],faulty)
                 if create_pdfs:
-                    check_pdf= self.make_pdf_file(current_afm, current_pdf_dir)
-                if(check_pdf!=check_afm):
-                    print(check_pdf,check_afm)
+                    check_pdf= self.make_pdf_file(current_an, current_pdf_dir)
+            workbook.save(path)
 
 # function that creates the files needed
 def Create_files(
