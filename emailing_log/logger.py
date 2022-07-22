@@ -1,4 +1,4 @@
-from logging_path import ISSUES, SENT_WELL
+from .logging_path import ISSUES, SENT_WELL
 
 #if true goes to the good ones if false goes to the issues
 def logging(addition: str,is_ok: bool):
@@ -11,3 +11,8 @@ def logging(addition: str,is_ok: bool):
             file.write(addition)
 
         
+def wipe():
+    open(SENT_WELL,'w').close()
+    open(ISSUES, 'w').close()
+
+
