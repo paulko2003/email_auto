@@ -1,11 +1,19 @@
 from pickle import NONE
 import random as ra
 import os
-
-from openpyxl.workbook import workbook
-from name_consts import ALPHABET, MAILS
 import openpyxl as xls
+from openpyxl.workbook import workbook
 
+if __name__ == "__main__":
+    from name_consts import ALPHABET, MAILS 
+    from name_consts import TEST_XLS_PATH,TEST_PDF_PATH 
+    from name_consts import PDF_Q,PDF_S        #/questions #/items
+    from name_consts import PDF_FOLDER_NAME
+else:
+    from .name_consts import ALPHABET, MAILS 
+    from .name_consts import TEST_XLS_PATH,TEST_PDF_PATH 
+    from .name_consts import PDF_Q,PDF_S        #/questions #/items
+    from .name_consts import PDF_FOLDER_NAME
 
 # creates all basic test files(txt and pdf)
 class test_file_creator:
@@ -14,7 +22,8 @@ class test_file_creator:
     def create_names(self, start: int, end: int):
         file_name = list()
         for i in range(start, end + 1, 1):
-            file_name += ["Test_file_" + str(i)]
+            file_name += [PDF_FOLDER_NAME + str(i)]
+    
         return file_name
 
     # creates a random afm everytime its called
@@ -54,7 +63,7 @@ class test_file_creator:
     def make_xlsx_file(self,workbook , current_an: str, persons_name: str, current_afm: str, current_email: str, name_file: str,faulty: bool):
         names=['anagnoristiko','email','people_name','afm']
         data=[current_an, current_email, persons_name, current_afm]
-        path= 'File_test/'+name_file+'.xlsx'
+        path= TEST_XLS_PATH+name_file+'.xlsx'
         if workbook==None:
             workbook= xls.Workbook()
             worksheet = workbook.worksheets[0]
@@ -66,7 +75,7 @@ class test_file_creator:
             letter = ra.choice(current_an)
             data[0] = current_an.replace(letter, "")
         t_row=worksheet.max_row
-        if worksheet.cell(row=t_row, column=1).value!=None: t_row+=1                                                                                                                                   
+        if worksheet.cell(row=t_row, column=1).value!=None: t_row+=1 
         for index,current in enumerate(names):
             worksheet.cell(row= t_row, column=index+1).value=data[index]
         return workbook,path           
@@ -83,27 +92,27 @@ class test_file_creator:
 
        # makes a direcotry that containts all the pdfs corresponding to a file
     def make_pdf_dir(self, current_index):
-        name = "PDF_files/" + "pdf_files_" + str(current_index) + "/"
-        namea= "PDF_files/" + "pdf_files_" + str(current_index) + "/items/" 
-        nameq= "PDF_files/" + "pdf_files_" + str(current_index) + "/questions/"
+        name = TEST_PDF_PATH + PDF_FOLDER_NAME + str(current_index) + "/"
+        namea= TEST_PDF_PATH + PDF_FOLDER_NAME + str(current_index) + PDF_Q + '/' 
+        nameq= TEST_PDF_PATH + PDF_FOLDER_NAME + str(current_index) + PDF_S+"/"
         os.mkdir(name)
         os.mkdir(namea)
         os.mkdir(nameq)
         return name
 
-    # makes an empty file with a .pdf extension so we can have something to send
-    def make_pdf_file(self, current_afm, current_pdf_dir):
+    # makes an empty file with a .txt and then turns it to a .pdf so it has some data inside so we can have something to send
+    def make_pdf_file(self,current_an, current_pdf_dir):
         try:
-            with open(current_pdf_dir+'questions/' + "Q" + current_afm + ".txt", "a") as f:
+            with open(current_pdf_dir+PDF_Q + "/Q" + current_an + ".txt", "a") as f:
                 f.write("he")
-            os.rename(current_pdf_dir+'questions/' + "Q" + current_afm +".txt", current_pdf_dir + "questions/Q" + current_afm +".pdf")
-            with open (current_pdf_dir+'items/' + "S" + current_afm + ".txt", "a") as f: 
+            os.rename(current_pdf_dir+ PDF_Q + "/Q" + current_an +".txt", current_pdf_dir + PDF_Q + '/Q' + current_an +".pdf")
+            with open (current_pdf_dir+ PDF_S+ "/S" + current_an + ".txt", "a") as f: 
                  f.write("he")
-            os.rename(current_pdf_dir+'items/' + "S" + current_afm +".txt", current_pdf_dir + "items/S" + current_afm +".pdf")
+            os.rename(current_pdf_dir+PDF_S + "/S" + current_an +".txt", current_pdf_dir + PDF_S + "/S" + current_an +".pdf")
 
         except Exception as e:
             print(e,"im here")
-        return current_afm
+        return current_an
 
     # uses the functions to make the files i want to test if create_pdfs or create_txt is False no txt or pdf will be made
     # takes range of files(statr, end) and if i want the files to have faults or no(afm missing a letter)
