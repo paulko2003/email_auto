@@ -5,6 +5,6 @@ from file_deleter import delete_files
 
 if __name__ == "__main__":
     delete_files() # start by deleting previous files
-    Create_files() # makes files needed for the test 
+    Create_files(end=1,faulty=True) # makes files needed for the test 
     
     

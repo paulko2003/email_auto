@@ -1,3 +1,3 @@
 #using relative path from where the script is
-ISSUES="Files/issues.txt"
-SENT_WELL="Files/sent_well.txt"
+ISSUES="logs/issues.txt"
+SENT_WELL="logs/sent_well.txt"

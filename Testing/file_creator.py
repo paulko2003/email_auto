@@ -64,7 +64,7 @@ class test_file_creator:
         else: worksheet= workbook.worksheets[0]             #this is extremely bad code     
         if (faulty and ra.randint(0, 999) == 500):  # adds 1/1000 chance to have a faulty afm
             letter = ra.choice(current_an)
-            current_an = current_an.replace(letter, "")
+            data[0] = current_an.replace(letter, "")
         t_row=worksheet.max_row
         if worksheet.cell(row=t_row, column=1).value!=None: t_row+=1                                                                                                                                   
         for index,current in enumerate(names):
