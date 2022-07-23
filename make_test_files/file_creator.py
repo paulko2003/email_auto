@@ -4,17 +4,10 @@ import os
 import openpyxl as xls
 from openpyxl.workbook import workbook
 
-if __name__ == "__main__":
-    from name_consts import ALPHABET, MAILS 
-    from name_consts import TEST_XLS_PATH,TEST_PDF_PATH 
-    from name_consts import PDF_Q,PDF_S        #/questions #/items
-    from name_consts import PDF_FOLDER_NAME
-else:
-    from .name_consts import ALPHABET, MAILS 
-    from .name_consts import TEST_XLS_PATH,TEST_PDF_PATH 
-    from .name_consts import PDF_Q,PDF_S        #/questions #/items
-    from .name_consts import PDF_FOLDER_NAME
-
+from .name_consts import ALPHABET, MAILS 
+from .name_consts import TEST_XLS_PATH,TEST_PDF_PATH 
+from .name_consts import PDF_Q,PDF_S        #/questions #/items
+from .name_consts import PDF_FOLDER_NAME,XLS_NAMES
 # creates all basic test files(txt and pdf)
 class test_file_creator:
 
@@ -22,7 +15,7 @@ class test_file_creator:
     def create_names(self, start: int, end: int):
         file_name = list()
         for i in range(start, end + 1, 1):
-            file_name += [PDF_FOLDER_NAME + str(i)]
+            file_name += [XLS_NAMES + str(i)]
     
         return file_name
 
@@ -63,7 +56,7 @@ class test_file_creator:
     def make_xlsx_file(self,workbook , current_an: str, persons_name: str, current_afm: str, current_email: str, name_file: str,faulty: bool):
         names=['anagnoristiko','email','people_name','afm']
         data=[current_an, current_email, persons_name, current_afm]
-        path= TEST_XLS_PATH+name_file+'.xlsx'
+        path= TEST_XLS_PATH+'/'+name_file+'.xlsx'
         if workbook==None:
             workbook= xls.Workbook()
             worksheet = workbook.worksheets[0]

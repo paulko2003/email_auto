@@ -1,4 +1,4 @@
-from .logging_path import ISSUES, SENT_WELL
+from make_logs.logging_path import ISSUES, SENT_WELL
 
 #if true goes to the good ones if false goes to the issues
 def logging(addition: str,is_ok: bool):

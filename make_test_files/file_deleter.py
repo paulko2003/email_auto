@@ -1,11 +1,7 @@
 #deletes files existing in the File_test folder so we dont get the previous files
 import os, shutil
 
-if __name__ == "__main__":
-    from name_consts import TEST_PDF_PATH, TEST_XLS_PATH
-else:
-    from .name_consts import TEST_PDF_PATH, TEST_XLS_PATH
-
+from .name_consts import TEST_PDF_PATH, TEST_XLS_PATH
 def deleter(folder):
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)

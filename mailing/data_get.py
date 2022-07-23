@@ -1,19 +1,19 @@
 import openpyxl as xls
 import os
-
+import sys
 from openpyxl.workbook import workbook
-from emailing_log.logger import logging, wipe
-
+from make_logs.logger import logging, wipe
+from .path_consts import BASIC_XL_PATH ,BASIC_Q_PATH ,BASIC_S_PATH
 #this class inits the d8icts i need in order to start sending 
 #our excel stracture should be like [anagnoristiko, email, people_name, afm]
 class getter:
-    def __init__(self, path_xl='Testing/File_test/Test_file_1.xlsx', path_s='Testing/PDF_files/pdf_files_1/items', path_q='Testing/PDF_files/pdf_files_1/questions'):
+    def __init__(self, path_xl=BASIC_XL_PATH, path_s=BASIC_S_PATH, path_q=BASIC_Q_PATH):
         self.path_xl= path_xl
         self.path_s=path_s
         self.path_q=path_q
         self.sending=dict() #anagnoristiko : email
         self.exist=dict() #anagnoristiko : 0 #should be anagnoristiko:2 in order to be okay and exist in both files
-        self.willSend=dict() #anagnoristiko:false #should be true in order for an email to be sent there
+        self.willSend=dict() #anagnoristiko:false #should be true in order for a222n email to be sent there
         self.total_issues=0 #used to print that everything is okay if no issues are found
         self._run()
 

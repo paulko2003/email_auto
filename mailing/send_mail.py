@@ -8,7 +8,7 @@ import ssl
 import os
 from email.message import EmailMessage
 from dotenv import load_dotenv, find_dotenv
-from emailing_log.logger import logging
+from make_logs.logger import logging
 
 class mailer:
     #when object is made gets env variables and establishes an smpt conection/login
